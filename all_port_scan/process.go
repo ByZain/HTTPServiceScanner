@@ -53,8 +53,8 @@ func Process() {
 	for thread := 0; thread < Threads; thread++ {
 		go func(thread int) {
 			defer WG.Done()
-			defer fmt.Println("[*] gorouting" + strconv.Itoa(thread+1) + "关闭!")
-			fmt.Println("[*] gorouting" + strconv.Itoa(thread+1) + "开启!")
+			defer fmt.Printf("\r[*] gorouting" + strconv.Itoa(thread+1) + "关闭!")
+			fmt.Println("\r[*] gorouting" + strconv.Itoa(thread+1) + "开启!")
 			for t := range Target {
 				scanHttpTarget(t)
 			}

@@ -36,7 +36,15 @@ var (
 
 func AllPortScanInit() {
 	var userThreads string
-	color.Blue.Println("本程序用来扫描http服务")
+	color.Blue.Println("本程序用来扫描IP列表的http服务")
+	var fPath string
+	fmt.Println("请将文件拖入:")
+	fmt.Scanln(&fPath)
+	fHandle, err := os.Open(fPath)
+	if err != nil {
+		panic(fmt.Sprintf("打开文件失败:%s", err.Error()))
+	}
+
 	fmt.Println("请设置线程数：")
 	fmt.Scanln(&userThreads)
 	threads, err := strconv.Atoi(userThreads)
@@ -47,17 +55,17 @@ func AllPortScanInit() {
 	Threads = threads
 
 	WG.Add(3)
-	go ReadIP()
-	go AllPortScan()
+	go ReadIP(fHandle)
+	go GetAllPort()
 	go Process()
 	WG.Wait()
 }
 
 // 向通道写入全端口目标
-func AllPortScan() {
+func GetAllPort() {
 	defer WG.Done()
-	for port := 1; port <= 65535; port++ {
-		for ip := range IpChan {
+	for ip := range IpChan {
+		for port := 1; port <= 65535; port++ {
 			Target <- fmt.Sprintf("http://%s:%d", ip, port)
 		}
 	}
@@ -65,16 +73,10 @@ func AllPortScan() {
 }
 
 // 向IP通道写入IP
-func ReadIP() {
+func ReadIP(fHandle *os.File) {
 	defer WG.Done()
 	var tmp map[string]interface{} = make(map[string]interface{})
-	var fPath string
-	fmt.Println("请将文件拖入:")
-	fmt.Scanln(&fPath)
-	fHandle, err := os.Open(fPath)
-	if err != nil {
-		panic(fmt.Sprintf("打开文件失败:%s", err.Error()))
-	}
+
 	fByte, _ := ioutil.ReadAll(fHandle)
 	fByte = bytes.ReplaceAll(fByte, []byte("\r"), []byte(""))
 	re := `\d+\.\d+\.\d+\.\d+`
