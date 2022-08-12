@@ -2,36 +2,16 @@ package allportscan
 
 import (
 	"bytes"
-	"crypto/tls"
 	"fmt"
+	parameterinit "httpscanner/parameter_init"
+	"httpscanner/process"
 	"io/ioutil"
 	"net"
-	"net/http"
 	"os"
 	"regexp"
 	"strconv"
-	"sync"
-	"time"
 
 	"github.com/gookit/color"
-)
-
-var (
-	Threads      int
-	IpChan       chan string = make(chan string)
-	Target       chan string = make(chan string)
-	mu           sync.Mutex
-	WG           sync.WaitGroup
-	UserAgent    = `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36`
-	F200, _      = os.OpenFile("200.txt", os.O_APPEND|os.O_CREATE|os.O_RDWR, 0755)
-	MyHttpClient = &http.Client{
-		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{
-				InsecureSkipVerify: true,
-			},
-		},
-		Timeout: time.Second * 15,
-	}
 )
 
 func AllPortScanInit() {
@@ -52,29 +32,29 @@ func AllPortScanInit() {
 		color.Red.Println("[-]默认50线程")
 		threads = 50
 	}
-	Threads = threads
+	parameterinit.AllPara.Threads = threads
 
-	WG.Add(3)
+	parameterinit.AllPara.Wg.Add(3)
 	go ReadIP(fHandle)
 	go GetAllPort()
-	go Process()
-	WG.Wait()
+	go process.Process()
+	parameterinit.AllPara.Wg.Wait()
 }
 
 // 向通道写入全端口目标
 func GetAllPort() {
-	defer WG.Done()
-	for ip := range IpChan {
+	defer parameterinit.AllPara.Wg.Done()
+	for ip := range parameterinit.AllPara.IpChan {
 		for port := 1; port <= 65535; port++ {
-			Target <- fmt.Sprintf("http://%s:%d", ip, port)
+			parameterinit.AllPara.Target <- fmt.Sprintf("http://%s:%d", ip, port)
 		}
 	}
-	close(Target)
+	close(parameterinit.AllPara.Target)
 }
 
 // 向IP通道写入IP
 func ReadIP(fHandle *os.File) {
-	defer WG.Done()
+	defer parameterinit.AllPara.Wg.Done()
 	var tmp map[string]interface{} = make(map[string]interface{})
 
 	fByte, _ := ioutil.ReadAll(fHandle)
@@ -89,7 +69,7 @@ func ReadIP(fHandle *os.File) {
 		}
 	}
 	for ip := range tmp {
-		IpChan <- ip
+		parameterinit.AllPara.IpChan <- ip
 	}
-	close(IpChan)
+	close(parameterinit.AllPara.IpChan)
 }
