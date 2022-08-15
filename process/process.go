@@ -10,6 +10,11 @@ import (
 // 检测模块
 func scanHttpTarget(s string) {
 	httpNewRequest, _ := http.NewRequest("GET", s, nil)
+
+	// 关闭长连接，及时释放资源,默认是keep-alive
+	// 也可以这样关：httpNewRequest.Header.Add("Connection", "close")
+	httpNewRequest.Close = true
+
 	httpNewRequest.Header.Add(`user-agent`, parameterinit.AllPara.HttpPara.UserAgent)
 
 	resp, err := parameterinit.AllPara.HttpPara.MyHttpClient.Do(httpNewRequest)
