@@ -12,7 +12,7 @@ func main() {
 	var userchoose string
 	color.Green.Println("请选择模式：")
 	color.Green.Println("1.输入<ip>合集文件，进行全端口扫描，文件中地址使用换行分隔。")
-	color.Green.Println("1.输入<ip:port>合集文件，进行全端口扫描，文件中地址使用换行分隔。")
+	color.Green.Println("2.输入<ip:port>合集文件，进行全端口扫描，文件中地址使用换行分隔。")
 	fmt.Scanln(&userchoose)
 
 	switch userchoose {

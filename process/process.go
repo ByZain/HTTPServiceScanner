@@ -19,7 +19,7 @@ func scanHttpTarget(s string) {
 
 	resp, err := parameterinit.AllPara.HttpPara.MyHttpClient.Do(httpNewRequest)
 	if err != nil {
-		fmt.Printf("\r" + err.Error())
+		fmt.Printf("\r" + err.Error()[:50] + "...")
 		return
 	}
 	fmt.Printf("\r[*] " + s + "        code:" + strconv.Itoa(resp.StatusCode))
