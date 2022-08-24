@@ -25,6 +25,8 @@ func main() {
 		color.Red.Println("输入错误，程序退出。")
 	}
 	color.Green.Println("[+]完成！结果保存在./200.txt中")
+
+	fmt.Println()
 	fmt.Println("按任意键退出...")
 	b := make([]byte, 1)
 	os.Stdin.Read(b)
