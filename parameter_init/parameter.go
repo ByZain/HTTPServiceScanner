@@ -13,13 +13,13 @@ import (
 )
 
 type Parainit struct {
-	Threads  int
-	Target   chan string
-	IpChan   chan string
-	Wg       sync.WaitGroup
-	Mu       sync.Mutex
-	HttpPara HttpPara
-	FilePara FilePara
+	Threads         int
+	Target          chan string
+	IpAndDomainChan chan string
+	Wg              sync.WaitGroup
+	Mu              sync.Mutex
+	HttpPara        HttpPara
+	FilePara        FilePara
 }
 
 type HttpPara struct {
@@ -35,11 +35,11 @@ var AllPara Parainit
 
 func init() {
 	AllPara = Parainit{
-		Threads: 50,
-		Target:  make(chan string),
-		IpChan:  make(chan string),
-		Wg:      sync.WaitGroup{},
-		Mu:      sync.Mutex{},
+		Threads:         50,
+		Target:          make(chan string),
+		IpAndDomainChan: make(chan string),
+		Wg:              sync.WaitGroup{},
+		Mu:              sync.Mutex{},
 		HttpPara: HttpPara{
 			UserAgent: `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36`,
 			MyHttpClient: &http.Client{

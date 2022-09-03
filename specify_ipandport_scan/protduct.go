@@ -7,7 +7,7 @@ import (
 	"httpscanner/process"
 	"io/ioutil"
 	"os"
-	"strings"
+	"regexp"
 
 	"github.com/gookit/color"
 )
@@ -34,9 +34,13 @@ func getURL() []string {
 	}
 	fByte, _ := ioutil.ReadAll(fHandle)
 	fByte = bytes.ReplaceAll(fByte, []byte("\r"), []byte(""))
-	for _, ipPort := range strings.Split(string(fByte), "\n") {
-		tmp = append(tmp, "http://"+ipPort)
+
+	re := `(([\w]([\w]{0,63}[\w])?\.)+[a-zA-Z]{2,6}|\d+\.\d+\.\d+\.\d+)(\:?(\d+)?)`
+	reg := regexp.MustCompile(re)
+	for _, t := range reg.FindAllString(string(fByte), -1) {
+		tmp = append(tmp, "http://"+t)
 	}
+
 	// 去重
 	var rmTmp map[string]interface{} = make(map[string]interface{})
 	for _, t := range tmp {
